@@ -10,14 +10,18 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const isStaff = user?.role === "admin" || user?.role === "agent";
+
   return (
     <nav className="bg-slate-800 text-white px-6 py-3 flex justify-between items-center">
       <div className="flex gap-4 font-medium">
         <Link to="/dashboard">Dashboard</Link>
-        <Link to="/customers">Customers</Link>
-        <Link to="/policies">Policies</Link>
+        <Link to="/plans">Plans</Link>
+        {isStaff && <Link to="/customers">Customers</Link>}
+        {isStaff && <Link to="/policies">Policies</Link>}
+        {!isStaff && <Link to="/my-policies">My Policies</Link>}
         <Link to="/claims">Claims</Link>
-        <Link to="/premiums">Premiums</Link>
+        {isStaff && <Link to="/premiums">Premiums</Link>}
       </div>
       <div className="flex items-center gap-4">
         <span className="text-sm text-slate-300">{user?.role}</span>
