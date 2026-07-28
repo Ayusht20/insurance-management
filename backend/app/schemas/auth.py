@@ -1,10 +1,16 @@
 from pydantic import BaseModel, EmailStr
+from datetime import date
+from typing import Optional
 
 class UserRegister(BaseModel):
     name: str
     email: EmailStr
     password: str
     role: str  # "admin" | "agent" | "customer"
+    # Required only when role == "customer"
+    dob: Optional[date] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
 
 class UserLogin(BaseModel):
     email: EmailStr

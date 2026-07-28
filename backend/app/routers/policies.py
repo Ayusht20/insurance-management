@@ -122,3 +122,47 @@ def expiring_policies(
         .filter(Policy.status == "active", Policy.end_date <= cutoff)
         .all()
     )
+
+from app.core.deps import get_current_customer
+from app.models.insurance_plan import InsurancePlan
+import random, string
+
+def generate_policy_number():
+    return "POL-" + "".join(random.choices(string.digits, k=8))
+
+@router.post("/apply", response_model=PolicyOut)
+def apply_for_policy(
+    plan_id: int,
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    plan = db.query(InsurancePlan).filter(InsurancePlan.id == plan_id, InsurancePlan.is_active == True).first()
+    if not plan:
+        raise HTTPException(status_code=404, detail="Plan not found or inactive")
+
+    from datetime import date
+    from dateutil.relativedelta import relativedelta
+    start = date.today()
+    end = start + relativedelta(months=plan.duration_months)
+
+    policy = Policy(
+        customer_id=customer.id,
+        plan_id=plan.id,
+        policy_type=plan.plan_type,
+        policy_number=generate_policy_number(),
+        premium_amount=plan.base_premium,
+        start_date=start,
+        end_date=end,
+        status="active",
+    )
+    db.add(policy)
+    db.commit()
+    db.refresh(policy)
+    return policy
+
+@router.get("/my", response_model=List[PolicyOut])
+def my_policies(
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    return db.query(Policy).filter(Policy.customer_id == customer.id).all()

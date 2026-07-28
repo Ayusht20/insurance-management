@@ -67,3 +67,13 @@ def overdue_payments(
         .filter(PremiumPayment.payment_status != "paid", PremiumPayment.payment_date < today)
         .all()
     )
+
+from app.core.deps import get_current_customer
+
+@router.get("/my", response_model=List[PremiumOut])
+def my_payments(
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    policy_ids = [p.id for p in customer.policies]
+    return db.query(PremiumPayment).filter(PremiumPayment.policy_id.in_(policy_ids)).all()

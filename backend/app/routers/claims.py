@@ -28,12 +28,13 @@ def submit_claim(
     db.refresh(claim)
     return claim
 
+# backend/app/routers/claims.py
 @router.get("/", response_model=List[ClaimOut])
 def list_claims(
     status: Optional[str] = None,
     policy_id: Optional[int] = None,
     db: Session = Depends(get_db),
-    current_user=Depends(require_role("admin", "agent", "customer")),
+    current_user=Depends(require_role("admin", "agent")),  # customer removed
 ):
     query = db.query(Claim)
     if status:
@@ -71,3 +72,13 @@ def review_claim(
     db.commit()
     db.refresh(claim)
     return claim
+
+from app.core.deps import get_current_customer
+
+@router.get("/my", response_model=List[ClaimOut])
+def my_claims(
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    policy_ids = [p.id for p in customer.policies]
+    return db.query(Claim).filter(Claim.policy_id.in_(policy_ids)).all()

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models.user import User
+from app.models.customer import Customer
 from app.schemas.auth import UserRegister, UserLogin, Token, UserOut
 from app.core.security import hash_password, verify_password, create_access_token
 
@@ -14,6 +15,13 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
+    if user_in.role == "customer":
+        if not (user_in.dob and user_in.phone and user_in.address):
+            raise HTTPException(
+                status_code=400,
+                detail="dob, phone, and address are required for customer registration",
+            )
+
     user = User(
         name=user_in.name,
         email=user_in.email,
@@ -23,6 +31,20 @@ def register(user_in: UserRegister, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    # Auto-create the linked customer record so login = their own data
+    if user_in.role == "customer":
+        customer = Customer(
+            user_id=user.id,
+            name=user_in.name,
+            dob=user_in.dob,
+            phone=user_in.phone,
+            address=user_in.address,
+            email=user_in.email,
+        )
+        db.add(customer)
+        db.commit()
+
     return user
 
 @router.post("/login", response_model=Token)

@@ -37,3 +37,16 @@ def require_role(*allowed_roles: str):
             )
         return current_user
     return role_checker
+
+from app.models.customer import Customer
+
+def get_current_customer(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Customer:
+    if current_user.role != "customer":
+        raise HTTPException(status_code=403, detail="Only customers have a linked customer record")
+    customer = db.query(Customer).filter(Customer.user_id == current_user.id).first()
+    if not customer:
+        raise HTTPException(status_code=404, detail="No customer record linked to this account")
+    return customer
