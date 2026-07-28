@@ -9,3 +9,7 @@ export const renewPolicy = (id, new_end_date) =>
 export const cancelPolicy = (id) => axiosInstance.post(`/policies/${id}/cancel`);
 export const getExpiringPolicies = (days = 30) =>
   axiosInstance.get(`/policies/expiring/soon?days=${days}`);
+
+export const applyForPolicy = (planId) =>
+  axiosInstance.post(`/policies/apply?plan_id=${planId}`);
+export const getMyPolicies = () => axiosInstance.get("/policies/my");
