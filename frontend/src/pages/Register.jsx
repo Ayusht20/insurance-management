@@ -3,7 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../services/authService";
 
 export default function Register() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "customer" });
+  const [form, setForm] = useState({
+    name: "", email: "", password: "", role: "customer",
+    dob: "", phone: "", address: "",
+  });
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
@@ -25,14 +28,25 @@ export default function Register() {
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6">Register</h1>
         {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
+
         <input name="name" placeholder="Name" onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
         <input name="email" type="email" placeholder="Email" onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
         <input name="password" type="password" placeholder="Password" onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
-        <select name="role" onChange={handleChange} value={form.role} className="w-full border p-2 rounded mb-4">
+
+        <select name="role" onChange={handleChange} value={form.role} className="w-full border p-2 rounded mb-3">
           <option value="customer">Customer</option>
           <option value="agent">Agent</option>
           <option value="admin">Admin</option>
         </select>
+
+        {form.role === "customer" && (
+          <>
+            <input name="dob" type="date" onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
+            <input name="phone" placeholder="Phone" onChange={handleChange} className="w-full border p-2 rounded mb-3" required />
+            <input name="address" placeholder="Address" onChange={handleChange} className="w-full border p-2 rounded mb-4" required />
+          </>
+        )}
+
         <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">
           Register
         </button>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { getClaims, submitClaim, reviewClaim } from "../services/claimService";
-import { getPolicies } from "../services/policyService";
+import { getClaims, getMyClaims, submitClaim, reviewClaim } from "../services/claimService";
+import { getPolicies, getMyPolicies } from "../services/policyService";
 import { useAuth } from "../context/AuthContext";
 
 export default function Claims() {
@@ -10,11 +10,17 @@ export default function Claims() {
   const [policies, setPolicies] = useState([]);
   const [form, setForm] = useState({ policy_id: "", claim_amount: "", reason: "" });
 
-  const loadClaims = () => getClaims().then((res) => setClaims(res.data)).catch(() => {});
+  const isStaff = user?.role === "admin" || user?.role === "agent";
+
+  const loadClaims = () => {
+    const fetcher = isStaff ? getClaims() : getMyClaims();
+    fetcher.then((res) => setClaims(res.data)).catch(() => {});
+  };
 
   useEffect(() => {
     loadClaims();
-    getPolicies().then((res) => setPolicies(res.data)).catch(() => {});
+    const policyFetcher = isStaff ? getPolicies() : getMyPolicies();
+    policyFetcher.then((res) => setPolicies(res.data)).catch(() => {});
   }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -32,11 +38,10 @@ export default function Claims() {
   };
 
   const statusColor = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
-  const canReview = user?.role === "admin" || user?.role === "agent";
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold mb-4">Claims</h1>
+      <h1 className="text-2xl font-bold mb-4">{isStaff ? "Claims" : "My Claims"}</h1>
 
       <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 grid grid-cols-3 gap-2">
         <select name="policy_id" value={form.policy_id} onChange={handleChange} className="border p-2 rounded" required>
@@ -52,7 +57,7 @@ export default function Claims() {
         <thead>
           <tr className="text-left border-b">
             <th className="p-2">Policy ID</th><th className="p-2">Amount</th><th className="p-2">Reason</th>
-            <th className="p-2">Status</th>{canReview && <th className="p-2">Actions</th>}
+            <th className="p-2">Status</th>{isStaff && <th className="p-2">Actions</th>}
           </tr>
         </thead>
         <tbody>
@@ -62,7 +67,7 @@ export default function Claims() {
               <td className="p-2">₹{c.claim_amount}</td>
               <td className="p-2">{c.reason}</td>
               <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${statusColor[c.status]}`}>{c.status}</span></td>
-              {canReview && (
+              {isStaff && (
                 <td className="p-2 flex gap-2">
                   {c.status === "pending" && (
                     <>
