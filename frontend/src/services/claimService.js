@@ -7,3 +7,5 @@ export const reviewClaim = (id, status) => axiosInstance.put(`/claims/${id}/revi
 export const getMyClaims = () => axiosInstance.get("/claims/my");
 export const getRemainingCoverage = (policyId) =>
   axiosInstance.get(`/claims/coverage-remaining/${policyId}`);
+
+export const getClaimHistory = (claimId) => axiosInstance.get(`/claims/${claimId}/history`);
