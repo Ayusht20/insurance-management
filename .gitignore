@@ -1,0 +1,66 @@
+# =========================
+# Backend (Python)
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+ivenv/
+.ivenv/
+env/
+ENV/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+.coverage
+htmlcov/
+backend/.ivenv/
+backend/venv/
+backend/__pycache__/
+backend/.env
+
+*.db
+*.sqlite3
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# =========================
+# Frontend (React + Vite)
+# =========================
+node_modules/
+dist/
+.vite/
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Python Build
+# =========================
+build/
+*.egg-info/
+
+# Uploads (if any)
+uploads/
