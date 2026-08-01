@@ -6,11 +6,16 @@ class UserRegister(BaseModel):
     name: str
     email: EmailStr
     password: str
-    role: str  # "admin" | "agent" | "customer"
-    # Required only when role == "customer"
-    dob: Optional[date] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
+    dob: date
+    phone: str
+    address: str
+    # role removed - public registration is always "customer" now
+
+class EmployeeCreate(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+    role: str  # "admin" | "agent"
 
 class UserLogin(BaseModel):
     email: EmailStr

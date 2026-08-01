@@ -56,3 +56,11 @@ def update_plan(
     db.commit()
     db.refresh(plan)
     return plan
+
+
+@router.get("/all", response_model=List[PlanOut])
+def list_all_plans(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("admin")),
+):
+    return db.query(InsurancePlan).all()

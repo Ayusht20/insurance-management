@@ -11,7 +11,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from app.routers import auth, customers, policies, premiums, claims, documents, reports, plans
+from app.routers import auth, customers, policies, premiums, claims, documents, reports, plans , employees
 app.include_router(plans.router)
 
 app.include_router(auth.router)
@@ -21,7 +21,7 @@ app.include_router(premiums.router)
 app.include_router(claims.router)
 app.include_router(documents.router)
 app.include_router(reports.router)
-
+app.include_router(employees.router)
 @app.get("/health")
 def health_check():
     return {"status": "ok"}

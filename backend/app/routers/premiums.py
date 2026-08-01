@@ -77,3 +77,30 @@ def my_payments(
 ):
     policy_ids = [p.id for p in customer.policies]
     return db.query(PremiumPayment).filter(PremiumPayment.policy_id.in_(policy_ids)).all()
+
+
+from app.core.deps import get_current_customer
+from datetime import date
+
+@router.post("/{payment_id}/pay", response_model=PremiumOut)
+def pay_premium(
+    payment_id: int,
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    payment = db.query(PremiumPayment).filter(PremiumPayment.id == payment_id).first()
+    if not payment:
+        raise HTTPException(status_code=404, detail="Payment not found")
+
+    policy = db.query(Policy).filter(Policy.id == payment.policy_id).first()
+    if not policy or policy.customer_id != customer.id:
+        raise HTTPException(status_code=403, detail="This payment does not belong to you")
+
+    if payment.payment_status == "paid":
+        raise HTTPException(status_code=400, detail="This payment has already been made")
+
+    payment.payment_status = "paid"
+    payment.payment_date = date.today()
+    db.commit()
+    db.refresh(payment)
+    return payment

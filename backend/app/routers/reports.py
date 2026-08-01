@@ -101,3 +101,49 @@ def monthly_premium_collection(
         .all()
     )
     return [MonthlyAmount(month=r[0], total=float(r[1])) for r in rows]
+
+from app.core.email import send_email
+from app.models.policy import Policy
+from app.models.premium_payment import PremiumPayment
+from datetime import date, timedelta
+
+@router.post("/notify/expiring-policies")
+async def notify_expiring_policies(
+    days: int = 30,
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("admin", "agent")),
+):
+    cutoff = date.today() + timedelta(days=days)
+    expiring = db.query(Policy).filter(Policy.status == "active", Policy.end_date <= cutoff).all()
+
+    sent = 0
+    for policy in expiring:
+        customer = policy.customer
+        await send_email(
+            subject="Your Insurance Policy is Expiring Soon",
+            recipients=[customer.email],
+            body=f"<p>Hi {customer.name},</p><p>Your policy <b>{policy.policy_number}</b> expires on {policy.end_date}. Please renew soon to avoid a coverage gap.</p>",
+        )
+        sent += 1
+    return {"notified": sent}
+
+@router.post("/notify/overdue-premiums")
+async def notify_overdue_premiums(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("admin", "agent")),
+):
+    today = date.today()
+    overdue = db.query(PremiumPayment).filter(
+        PremiumPayment.payment_status != "paid", PremiumPayment.payment_date < today
+    ).all()
+
+    sent = 0
+    for payment in overdue:
+        customer = payment.policy.customer
+        await send_email(
+            subject="Premium Payment Overdue",
+            recipients=[customer.email],
+            body=f"<p>Hi {customer.name},</p><p>Your premium payment of ₹{payment.amount} for policy <b>{payment.policy.policy_number}</b> was due on {payment.payment_date} and is still pending.</p>",
+        )
+        sent += 1
+    return {"notified": sent}
