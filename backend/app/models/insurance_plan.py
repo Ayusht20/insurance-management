@@ -6,12 +6,13 @@ class InsurancePlan(Base):
     __tablename__ = "insurance_plans"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, nullable=False)           # "Health Shield Basic"
-    plan_type = Column(String, nullable=False)       # "health" | "life" | "vehicle"
+    name = Column(String, nullable=False)
+    plan_type = Column(String, nullable=False)
     description = Column(String, nullable=True)
     coverage_amount = Column(Float, nullable=False)
-    base_premium = Column(Float, nullable=False)     # per year
+    base_premium = Column(Float, nullable=False)
     duration_months = Column(Integer, nullable=False, default=12)
+    installments = Column(Integer, nullable=False, default=1)  # NEW: 1=lump sum, 4=quarterly, 12=monthly
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
