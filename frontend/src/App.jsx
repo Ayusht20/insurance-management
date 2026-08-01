@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
-
+import Documents from "./pages/Documents";
+import MyDocuments from "./pages/MyDocuments";
+import Employees from "./pages/Employees";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -11,7 +13,7 @@ import Claims from "./pages/Claims";
 import Premiums from "./pages/Premiums";
 import Plans from "./pages/Plans";
 import MyPolicies from "./pages/MyPolicies";
-
+import ManagePlans from "./pages/ManagePlans";
 function App() {
   return (
     <BrowserRouter>
@@ -28,6 +30,10 @@ function App() {
           <Route path="/my-policies" element={<ProtectedRoute allowedRoles={["customer"]}><MyPolicies /></ProtectedRoute>} />
           <Route path="/" element={<Navigate to="/dashboard" />} />
           <Route path="*" element={<Navigate to="/dashboard" />} />
+          <Route path="/documents" element={<ProtectedRoute allowedRoles={["admin", "agent"]}><Documents /></ProtectedRoute>} />
+          <Route path="/my-documents" element={<ProtectedRoute allowedRoles={["customer"]}><MyDocuments /></ProtectedRoute>} />
+          <Route path="/employees" element={<ProtectedRoute allowedRoles={["admin"]}><Employees /></ProtectedRoute>} />
+          <Route path="/manage-plans" element={<ProtectedRoute allowedRoles={["admin"]}><ManagePlans /></ProtectedRoute>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

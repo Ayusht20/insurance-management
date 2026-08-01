@@ -6,3 +6,8 @@ export const getClaimsByStatus = () => axiosInstance.get("/reports/claims/by-sta
 export const getCustomerGrowth = () => axiosInstance.get("/reports/customers/growth");
 export const getMonthlyPremiumCollection = () =>
   axiosInstance.get("/reports/premiums/monthly-collection");
+
+export const notifyExpiringPolicies = (days = 30) =>
+  axiosInstance.post(`/reports/notify/expiring-policies?days=${days}`);
+export const notifyOverduePremiums = () =>
+  axiosInstance.post("/reports/notify/overdue-premiums");

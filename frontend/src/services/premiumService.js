@@ -6,3 +6,4 @@ export const updatePaymentStatus = (id, payment_status) =>
   axiosInstance.put(`/premiums/${id}`, { payment_status });
 export const getOverduePayments = () => axiosInstance.get("/premiums/overdue/list");
 export const getMyPayments = () => axiosInstance.get("/premiums/my");
+export const payPremium = (id) => axiosInstance.post(`/premiums/${id}/pay`);

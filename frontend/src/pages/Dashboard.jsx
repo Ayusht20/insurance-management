@@ -1,86 +1,148 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { getClaims, getMyClaims, submitClaim, reviewClaim } from "../services/claimService";
-import { getPolicies, getMyPolicies } from "../services/policyService";
+import {
+  getDashboardSummary,
+  notifyExpiringPolicies,
+  notifyOverduePremiums,
+} from "../services/reportService";
+import { getMyPolicies } from "../services/policyService";
+import { getMyClaims } from "../services/claimService";
+import PolicyStatusChart from "../components/charts/PolicyStatusChart";
+import ClaimStatusChart from "../components/charts/ClaimStatusChart";
+import PremiumCollectionChart from "../components/charts/PremiumCollectionChart";
+import CustomerGrowthChart from "../components/charts/CustomerGrowthChart";
 import { useAuth } from "../context/AuthContext";
 
-export default function Claims() {
+export default function Dashboard() {
   const { user } = useAuth();
-  const [claims, setClaims] = useState([]);
-  const [policies, setPolicies] = useState([]);
-  const [form, setForm] = useState({ policy_id: "", claim_amount: "", reason: "" });
-
   const isStaff = user?.role === "admin" || user?.role === "agent";
 
-  const loadClaims = () => {
-    const fetcher = isStaff ? getClaims() : getMyClaims();
-    fetcher.then((res) => setClaims(res.data)).catch(() => {});
-  };
+  const [summary, setSummary] = useState(null);
+  const [myData, setMyData] = useState(null);
+  const [notifyMsg, setNotifyMsg] = useState("");
+  const [notifyLoading, setNotifyLoading] = useState(false);
 
   useEffect(() => {
-    loadClaims();
-    const policyFetcher = isStaff ? getPolicies() : getMyPolicies();
-    policyFetcher.then((res) => setPolicies(res.data)).catch(() => {});
-  }, []);
+    if (isStaff) {
+      getDashboardSummary().then((res) => setSummary(res.data)).catch(() => {});
+    } else {
+      Promise.all([getMyPolicies(), getMyClaims()])
+        .then(([policiesRes, claimsRes]) => {
+          setMyData({ policies: policiesRes.data, claims: claimsRes.data });
+        })
+        .catch(() => {});
+    }
+  }, [isStaff]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await submitClaim({ ...form, policy_id: Number(form.policy_id), claim_amount: Number(form.claim_amount) });
-    setForm({ policy_id: "", claim_amount: "", reason: "" });
-    loadClaims();
+  const handleNotifyExpiring = async () => {
+    setNotifyLoading(true);
+    setNotifyMsg("");
+    try {
+      const res = await notifyExpiringPolicies();
+      setNotifyMsg(`Notified ${res.data.notified} customers about expiring policies.`);
+    } catch (err) {
+      setNotifyMsg(err.response?.data?.detail || "Failed to send notifications.");
+    } finally {
+      setNotifyLoading(false);
+    }
   };
 
-  const handleReview = async (id, status) => {
-    await reviewClaim(id, status);
-    loadClaims();
+  const handleNotifyOverdue = async () => {
+    setNotifyLoading(true);
+    setNotifyMsg("");
+    try {
+      const res = await notifyOverduePremiums();
+      setNotifyMsg(`Notified ${res.data.notified} customers about overdue premiums.`);
+    } catch (err) {
+      setNotifyMsg(err.response?.data?.detail || "Failed to send notifications.");
+    } finally {
+      setNotifyLoading(false);
+    }
   };
 
-  const statusColor = { pending: "bg-yellow-100 text-yellow-700", approved: "bg-green-100 text-green-700", rejected: "bg-red-100 text-red-700" };
+  // ---------- STAFF VIEW ----------
+  if (isStaff) {
+    if (!summary) return <Layout><p>Loading...</p></Layout>;
+
+    const cards = [
+      { label: "Total Customers", value: summary.total_customers },
+      { label: "Active Policies", value: summary.total_active_policies },
+      { label: "Expired Policies", value: summary.total_expired_policies },
+      { label: "Cancelled Policies", value: summary.total_cancelled_policies },
+      { label: "Pending Claims", value: summary.total_pending_claims },
+      { label: "Approved Claims", value: summary.total_approved_claims },
+      { label: "Rejected Claims", value: summary.total_rejected_claims },
+      { label: "Premium Collected", value: `₹${summary.total_premium_collected}` },
+    ];
+
+    return (
+      <Layout>
+        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {cards.map((c) => (
+            <div key={c.label} className="bg-white p-4 rounded-lg shadow">
+              <p className="text-sm text-slate-500">{c.label}</p>
+              <p className="text-2xl font-bold">{c.value}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <PolicyStatusChart />
+          <ClaimStatusChart />
+          <PremiumCollectionChart />
+          <CustomerGrowthChart />
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            onClick={handleNotifyExpiring}
+            disabled={notifyLoading}
+            className="bg-amber-500 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+          >
+            {notifyLoading ? "Sending..." : "Notify Expiring Policies"}
+          </button>
+          <button
+            onClick={handleNotifyOverdue}
+            disabled={notifyLoading}
+            className="bg-red-500 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+          >
+            {notifyLoading ? "Sending..." : "Notify Overdue Premiums"}
+          </button>
+        </div>
+        {notifyMsg && <p className="mt-2 text-sm text-green-700">{notifyMsg}</p>}
+      </Layout>
+    );
+  }
+
+  // ---------- CUSTOMER VIEW ----------
+  if (!myData) return <Layout><p>Loading...</p></Layout>;
+
+  const activeCount = myData.policies.filter((p) => p.status === "active").length;
+  const pendingClaims = myData.claims.filter((c) => c.status === "pending").length;
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold mb-4">{isStaff ? "Claims" : "My Claims"}</h1>
-
-      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 grid grid-cols-3 gap-2">
-        <select name="policy_id" value={form.policy_id} onChange={handleChange} className="border p-2 rounded" required>
-          <option value="">Select Policy</option>
-          {policies.map((p) => <option key={p.id} value={p.id}>{p.policy_number}</option>)}
-        </select>
-        <input name="claim_amount" type="number" placeholder="Claim Amount" value={form.claim_amount} onChange={handleChange} className="border p-2 rounded" required />
-        <input name="reason" placeholder="Reason" value={form.reason} onChange={handleChange} className="border p-2 rounded" required />
-        <button type="submit" className="col-span-3 bg-blue-600 text-white py-2 rounded">Submit Claim</button>
-      </form>
-
-      <table className="w-full bg-white rounded shadow">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="p-2">Policy ID</th><th className="p-2">Amount</th><th className="p-2">Reason</th>
-            <th className="p-2">Status</th>{isStaff && <th className="p-2">Actions</th>}
-          </tr>
-        </thead>
-        <tbody>
-          {claims.map((c) => (
-            <tr key={c.id} className="border-b">
-              <td className="p-2">{c.policy_id}</td>
-              <td className="p-2">₹{c.claim_amount}</td>
-              <td className="p-2">{c.reason}</td>
-              <td className="p-2"><span className={`px-2 py-1 rounded text-xs ${statusColor[c.status]}`}>{c.status}</span></td>
-              {isStaff && (
-                <td className="p-2 flex gap-2">
-                  {c.status === "pending" && (
-                    <>
-                      <button onClick={() => handleReview(c.id, "approved")} className="text-green-600 text-sm">Approve</button>
-                      <button onClick={() => handleReview(c.id, "rejected")} className="text-red-600 text-sm">Reject</button>
-                    </>
-                  )}
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h1 className="text-2xl font-bold mb-6">My Dashboard</h1>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="bg-white p-4 rounded-lg shadow">
+          <p className="text-sm text-slate-500">My Policies</p>
+          <p className="text-2xl font-bold">{myData.policies.length}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow">
+          <p className="text-sm text-slate-500">Active Policies</p>
+          <p className="text-2xl font-bold">{activeCount}</p>
+        </div>
+        <div className="bg-white p-4 rounded-lg shadow">
+          <p className="text-sm text-slate-500">Pending Claims</p>
+          <p className="text-2xl font-bold">{pendingClaims}</p>
+        </div>
+      </div>
+      <p className="mt-6 text-slate-500 text-sm">
+        Visit <span className="font-semibold">My Policies</span> for full details, or{" "}
+        <span className="font-semibold">Plans</span> to apply for new coverage.
+      </p>
     </Layout>
   );
 }

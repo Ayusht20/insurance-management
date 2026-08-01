@@ -22,6 +22,9 @@ export default function Navbar() {
         {!isStaff && <Link to="/my-policies">My Policies</Link>}
         <Link to="/claims">Claims</Link>
         {isStaff && <Link to="/premiums">Premiums</Link>}
+        {isStaff && <Link to="/documents">Documents</Link>}
+        {!isStaff && <Link to="/my-documents">My Documents</Link>}
+        {user?.role === "admin" && <Link to="/employees">Employees</Link>}
       </div>
       <div className="flex items-center gap-4">
         <span className="text-sm text-slate-300">{user?.role}</span>
