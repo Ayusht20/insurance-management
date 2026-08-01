@@ -13,6 +13,7 @@ from app.models.customer import Customer
 from app.models.insurance_plan import InsurancePlan
 from app.schemas.policy import PolicyCreate, PolicyUpdate, PolicyOut
 from app.core.deps import require_role, get_current_customer
+from app.services.status_sync import sync_policy_statuses
 
 router = APIRouter(prefix="/policies", tags=["policies"])
 
@@ -88,8 +89,8 @@ def my_policies(
     db: Session = Depends(get_db),
     customer=Depends(get_current_customer),
 ):
+    sync_policy_statuses(db)
     return db.query(Policy).filter(Policy.customer_id == customer.id).all()
-
 
 @router.get("/expiring/soon", response_model=List[PolicyOut])
 def expiring_policies(
@@ -114,13 +115,13 @@ def list_policies(
     db: Session = Depends(get_db),
     current_user=Depends(require_role("admin", "agent", "customer")),
 ):
+    sync_policy_statuses(db)
     query = db.query(Policy)
     if status:
         query = query.filter(Policy.status == status)
     if customer_id:
         query = query.filter(Policy.customer_id == customer_id)
     return query.offset(skip).limit(limit).all()
-
 
 # --- Parameterized route MUST come after all literal ones above ---
 
