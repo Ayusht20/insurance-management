@@ -44,6 +44,8 @@ def create_policy(
 
 
 # --- Literal-path routes MUST come before /{policy_id} ---
+from dateutil.relativedelta import relativedelta
+
 @router.post("/apply", response_model=PolicyOut)
 def apply_for_policy(
     plan_id: int,
@@ -71,18 +73,22 @@ def apply_for_policy(
     db.commit()
     db.refresh(policy)
 
-    # Auto-generate the first premium due — customer pays via /premiums/{id}/pay
-    due_payment = PremiumPayment(
-        policy_id=policy.id,
-        payment_date=start,
-        amount=plan.base_premium,
-        payment_status="pending",
-    )
-    db.add(due_payment)
+    # Generate installment schedule based on plan.installments
+    installment_count = plan.installments or 1
+    installment_amount = round(plan.base_premium / installment_count, 2)
+    months_between = plan.duration_months // installment_count
+
+    for i in range(installment_count):
+        due_date = start + relativedelta(months=months_between * i)
+        db.add(PremiumPayment(
+            policy_id=policy.id,
+            payment_date=due_date,
+            amount=installment_amount,
+            payment_status="pending",
+        ))
     db.commit()
 
     return policy
-
 
 @router.get("/my", response_model=List[PolicyOut])
 def my_policies(
