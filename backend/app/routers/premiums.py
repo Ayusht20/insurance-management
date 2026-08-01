@@ -7,9 +7,11 @@ from app.database import get_db
 from app.models.premium_payment import PremiumPayment
 from app.models.policy import Policy
 from app.schemas.premium import PremiumCreate, PremiumUpdate, PremiumOut
-from app.core.deps import require_role
+from app.core.deps import require_role, get_current_customer
+from app.services.status_sync import sync_premium_statuses
 
 router = APIRouter(prefix="/premiums", tags=["premiums"])
+
 
 @router.post("/", response_model=PremiumOut)
 def record_payment(
@@ -27,6 +29,26 @@ def record_payment(
     db.refresh(payment)
     return payment
 
+
+@router.get("/my", response_model=List[PremiumOut])
+def my_payments(
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    sync_premium_statuses(db)
+    policy_ids = [p.id for p in customer.policies]
+    return db.query(PremiumPayment).filter(PremiumPayment.policy_id.in_(policy_ids)).all()
+
+
+@router.get("/overdue/list", response_model=List[PremiumOut])
+def overdue_payments(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_role("admin", "agent")),
+):
+    sync_premium_statuses(db)
+    return db.query(PremiumPayment).filter(PremiumPayment.payment_status == "overdue").all()
+
+
 @router.get("/", response_model=List[PremiumOut])
 def list_payments(
     policy_id: Optional[int] = None,
@@ -34,12 +56,14 @@ def list_payments(
     db: Session = Depends(get_db),
     current_user=Depends(require_role("admin", "agent", "customer")),
 ):
+    sync_premium_statuses(db)
     query = db.query(PremiumPayment)
     if policy_id:
         query = query.filter(PremiumPayment.policy_id == policy_id)
     if payment_status:
         query = query.filter(PremiumPayment.payment_status == payment_status)
     return query.all()
+
 
 @router.put("/{payment_id}", response_model=PremiumOut)
 def update_payment_status(
@@ -56,31 +80,6 @@ def update_payment_status(
     db.refresh(payment)
     return payment
 
-@router.get("/overdue/list", response_model=List[PremiumOut])
-def overdue_payments(
-    db: Session = Depends(get_db),
-    current_user=Depends(require_role("admin", "agent")),
-):
-    today = date.today()
-    return (
-        db.query(PremiumPayment)
-        .filter(PremiumPayment.payment_status != "paid", PremiumPayment.payment_date < today)
-        .all()
-    )
-
-from app.core.deps import get_current_customer
-
-@router.get("/my", response_model=List[PremiumOut])
-def my_payments(
-    db: Session = Depends(get_db),
-    customer=Depends(get_current_customer),
-):
-    policy_ids = [p.id for p in customer.policies]
-    return db.query(PremiumPayment).filter(PremiumPayment.policy_id.in_(policy_ids)).all()
-
-
-from app.core.deps import get_current_customer
-from datetime import date
 
 @router.post("/{payment_id}/pay", response_model=PremiumOut)
 def pay_premium(
@@ -95,7 +94,6 @@ def pay_premium(
     policy = db.query(Policy).filter(Policy.id == payment.policy_id).first()
     if not policy or policy.customer_id != customer.id:
         raise HTTPException(status_code=403, detail="This payment does not belong to you")
-
     if payment.payment_status == "paid":
         raise HTTPException(status_code=400, detail="This payment has already been made")
 
