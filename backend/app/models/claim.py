@@ -6,8 +6,9 @@ class Claim(Base):
     __tablename__ = "claims"
 
     id = Column(Integer, primary_key=True, index=True)
+    claim_number = Column(String, unique=True, nullable=False, index=True)  
     policy_id = Column(Integer, ForeignKey("policies.id"), nullable=False)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)  # NEW
+    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
     claim_amount = Column(Float, nullable=False)
     reason = Column(String, nullable=False)
     status = Column(String, default="pending")
