@@ -5,7 +5,7 @@ import StatusSeal from "../components/StatusSeal";
 
 const emptyForm = {
   name: "", plan_type: "health", description: "",
-  coverage_amount: "", base_premium: "", duration_months: 12,
+  coverage_amount: "", base_premium: "", duration_months: 12, installments: 1,
 };
 
 export default function ManagePlans() {
@@ -23,12 +23,13 @@ export default function ManagePlans() {
     e.preventDefault();
     setError("");
     try {
-      await createPlan({
-        ...form,
-        coverage_amount: Number(form.coverage_amount),
-        base_premium: Number(form.base_premium),
-        duration_months: Number(form.duration_months),
-      });
+await createPlan({
+  ...form,
+  coverage_amount: Number(form.coverage_amount),
+  base_premium: Number(form.base_premium),
+  duration_months: Number(form.duration_months),
+  installments: Number(form.installments),
+});
       setForm(emptyForm);
       loadPlans();
     } catch (err) {
@@ -53,6 +54,12 @@ export default function ManagePlans() {
           <option value="vehicle">Vehicle</option>
         </select>
         <input name="duration_months" type="number" placeholder="Duration (months)" value={form.duration_months} onChange={handleChange} className="border p-2 rounded" />
+        <select name="installments" value={form.installments} onChange={handleChange} className="border p-2 rounded">
+  <option value="1">Lump Sum (1 payment/year)</option>
+  <option value="2">Half-Yearly (2 payments/year)</option>
+  <option value="4">Quarterly (4 payments/year)</option>
+  <option value="12">Monthly (12 payments/year)</option>
+</select>
         <input name="coverage_amount" type="number" placeholder="Coverage Amount (₹)" value={form.coverage_amount} onChange={handleChange} className="border p-2 rounded" required />
         <input name="base_premium" type="number" placeholder="Base Premium (₹/yr)" value={form.base_premium} onChange={handleChange} className="border p-2 rounded" required />
         <textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} className="border p-2 rounded col-span-2" rows="2" />
