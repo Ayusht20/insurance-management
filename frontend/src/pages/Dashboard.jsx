@@ -12,6 +12,7 @@ import ClaimStatusChart from "../components/charts/ClaimStatusChart";
 import PremiumCollectionChart from "../components/charts/PremiumCollectionChart";
 import CustomerGrowthChart from "../components/charts/CustomerGrowthChart";
 import { useAuth } from "../context/AuthContext";
+import Spinner from "../components/Spinner";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -62,7 +63,7 @@ export default function Dashboard() {
 
   // ---------- STAFF VIEW ----------
   if (isStaff) {
-    if (!summary) return <Layout><p>Loading...</p></Layout>;
+    if (!summary) return <Layout><Spinner label="Loading dashboard..." /></Layout>;
 
     const cards = [
       { label: "Total Customers", value: summary.total_customers },
@@ -77,7 +78,7 @@ export default function Dashboard() {
 
     return (
       <Layout>
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <h1 className="font-display text-3xl mb-6">Dashboard</h1>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {cards.map((c) => (
@@ -99,32 +100,32 @@ export default function Dashboard() {
           <button
             onClick={handleNotifyExpiring}
             disabled={notifyLoading}
-            className="bg-amber-500 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+            className="bg-amber text-white px-4 py-2 rounded text-sm disabled:opacity-50"
           >
             {notifyLoading ? "Sending..." : "Notify Expiring Policies"}
           </button>
           <button
             onClick={handleNotifyOverdue}
             disabled={notifyLoading}
-            className="bg-red-500 text-white px-4 py-2 rounded text-sm disabled:opacity-50"
+            className="bg-rust text-white px-4 py-2 rounded text-sm disabled:opacity-50"
           >
             {notifyLoading ? "Sending..." : "Notify Overdue Premiums"}
           </button>
         </div>
-        {notifyMsg && <p className="mt-2 text-sm text-green-700">{notifyMsg}</p>}
+        {notifyMsg && <p className="mt-2 text-sm text-sage">{notifyMsg}</p>}
       </Layout>
     );
   }
 
   // ---------- CUSTOMER VIEW ----------
-  if (!myData) return <Layout><p>Loading...</p></Layout>;
+  if (!myData) return <Layout><Spinner label="Loading your dashboard..." /></Layout>;
 
   const activeCount = myData.policies.filter((p) => p.status === "active").length;
   const pendingClaims = myData.claims.filter((c) => c.status === "pending").length;
 
   return (
     <Layout>
-      <h1 className="text-2xl font-bold mb-6">My Dashboard</h1>
+      <h1 className="font-display text-3xl mb-6">My Dashboard</h1>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow">
           <p className="text-sm text-slate-500">My Policies</p>
