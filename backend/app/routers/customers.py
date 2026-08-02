@@ -10,6 +10,11 @@ from app.core.deps import require_role
 
 router = APIRouter(prefix="/customers", tags=["customers"])
 
+from app.core.deps import get_current_customer
+
+@router.get("/me", response_model=CustomerOut)
+def get_my_customer_profile(customer=Depends(get_current_customer)):
+    return customer
 # Only admin/agent can register & manage customers
 @router.post("/", response_model=CustomerOut)
 def create_customer(

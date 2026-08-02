@@ -64,14 +64,29 @@ async def apply_for_policy(
     if not plan:
         raise HTTPException(status_code=404, detail="Plan not found or inactive")
 
+    # NEW: block duplicate applications for the same plan
+    existing_policy = (
+        db.query(Policy)
+        .filter(
+            Policy.customer_id == customer.id,
+            Policy.plan_id == plan.id,
+            Policy.status.in_(["active", "pending_verification"]),
+        )
+        .first()
+    )
+    if existing_policy:
+        if existing_policy.status == "pending_verification":
+            raise HTTPException(
+                status_code=400,
+                detail=f"You already have a pending application for this plan ({existing_policy.policy_number}) — verify or cancel it first",
+            )
+        raise HTTPException(
+            status_code=400,
+            detail=f"You already have an active policy for this plan ({existing_policy.policy_number})",
+        )
+
     if apply_in.installments > plan.installments:
         raise HTTPException(status_code=400, detail=f"This plan allows a maximum of {plan.installments} installments")
-    if plan.duration_months % apply_in.installments != 0:
-        raise HTTPException(status_code=400, detail="Chosen installment count doesn't divide evenly into the plan duration")
-
-    document = db.query(Document).filter(Document.id == apply_in.document_id, Document.customer_id == customer.id).first()
-    if not document:
-        raise HTTPException(status_code=404, detail="Document not found for this customer")
 
     start = date.today()
     end = start + relativedelta(months=plan.duration_months)
@@ -281,3 +296,19 @@ def cancel_policy(
     db.commit()
     db.refresh(policy)
     return policy
+
+@router.delete("/{policy_id}/cancel-application")
+def cancel_pending_application(
+    policy_id: int,
+    db: Session = Depends(get_db),
+    customer=Depends(get_current_customer),
+):
+    policy = db.query(Policy).filter(Policy.id == policy_id, Policy.customer_id == customer.id).first()
+    if not policy:
+        raise HTTPException(status_code=404, detail="Policy not found")
+    if policy.status != "pending_verification":
+        raise HTTPException(status_code=400, detail="Only unverified applications can be cancelled this way")
+
+    db.delete(policy)
+    db.commit()
+    return {"detail": "Application cancelled"}
