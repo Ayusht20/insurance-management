@@ -10,6 +10,9 @@ export const cancelPolicy = (id) => axiosInstance.post(`/policies/${id}/cancel`)
 export const getExpiringPolicies = (days = 30) =>
   axiosInstance.get(`/policies/expiring/soon?days=${days}`);
 
-export const applyForPolicy = (planId) =>
-  axiosInstance.post(`/policies/apply?plan_id=${planId}`);
+
 export const getMyPolicies = () => axiosInstance.get("/policies/my");
+
+export const applyForPolicy = (data) => axiosInstance.post("/policies/apply", data);
+export const verifyPolicyOtp = (policyId, otp) => axiosInstance.post(`/policies/${policyId}/verify-otp`, { otp });
+export const resendPolicyOtp = (policyId) => axiosInstance.post(`/policies/${policyId}/resend-otp`);
