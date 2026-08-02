@@ -11,18 +11,11 @@ router = APIRouter(prefix="/plans", tags=["plans"])
 
 # Anyone logged in can browse active plans (customers need this to choose)
 @router.get("/", response_model=List[PlanOut])
-def list_plans(
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+def list_plans(db: Session = Depends(get_db)):
     return db.query(InsurancePlan).filter(InsurancePlan.is_active == True).all()
 
 @router.get("/{plan_id}", response_model=PlanOut)
-def get_plan(
-    plan_id: int,
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+def get_plan(plan_id: int, db: Session = Depends(get_db)):
     plan = db.query(InsurancePlan).filter(InsurancePlan.id == plan_id).first()
     if not plan:
         raise HTTPException(status_code=404, detail="Plan not found")

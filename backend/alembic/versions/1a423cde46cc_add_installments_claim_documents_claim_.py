@@ -36,7 +36,7 @@ def upgrade() -> None:
     op.create_index(op.f('ix_claim_history_id'), 'claim_history', ['id'], unique=False)
     op.add_column('claims', sa.Column('document_id', sa.Integer(), nullable=True))
     op.create_foreign_key(None, 'claims', 'documents', ['document_id'], ['id'])
-    op.add_column('insurance_plans', sa.Column('installments', sa.Integer(), nullable=False))
+    op.add_column('insurance_plans', sa.Column('installments', sa.Integer(), nullable=False, server_default='1'))
     # ### end Alembic commands ###
 
 
