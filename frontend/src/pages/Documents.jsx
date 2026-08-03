@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { getCustomers } from "../services/customerService";
-import {
-  uploadDocument, getCustomerDocuments, downloadDocumentUrl,
-} from "../services/documentService";
+import { uploadDocument, getCustomerDocuments, downloadDocument } from "../services/documentService";
 import { useAuth } from "../context/AuthContext";
 
 export default function Documents() {
@@ -95,9 +93,9 @@ export default function Documents() {
                   <td className="p-3">{d.file_name}</td>
                   <td className="p-3 text-sm text-slate-500">{new Date(d.uploaded_at).toLocaleDateString()}</td>
                   <td className="p-3">
-                    <a href={downloadDocumentUrl(d.id)} target="_blank" rel="noreferrer" className="text-blue-600 text-sm">
-                      Download
-                    </a>
+<button onClick={() => downloadDocument(d.id, d.file_name)} className="text-blue-600 text-sm">
+  Download
+</button>
                   </td>
                 </tr>
               ))}

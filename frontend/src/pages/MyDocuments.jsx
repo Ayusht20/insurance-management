@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { getMyPolicies } from "../services/policyService";
-import { uploadDocument, getCustomerDocuments, downloadDocumentUrl } from "../services/documentService";
 import axiosInstance from "../api/axiosInstance";
-
+import { uploadDocument, getCustomerDocuments, downloadDocument } from "../services/documentService";
 export default function MyDocuments() {
   const [customerId, setCustomerId] = useState(null);
   const [docs, setDocs] = useState([]);
@@ -67,7 +66,7 @@ export default function MyDocuments() {
                 <td className="p-3">{d.file_name}</td>
                 <td className="p-3 text-sm text-slate-500">{new Date(d.uploaded_at).toLocaleDateString()}</td>
                 <td className="p-3">
-                  <a href={downloadDocumentUrl(d.id)} target="_blank" rel="noreferrer" className="text-blue-600 text-sm">Download</a>
+                  <button onClick={() => downloadDocument(d.id, d.file_name)} className="text-blue-600 text-sm">Download</button>
                 </td>
               </tr>
             ))}

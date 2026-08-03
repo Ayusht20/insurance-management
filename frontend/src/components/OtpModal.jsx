@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { verifyPolicyOtp, resendPolicyOtp } from "../services/policyService";
-
+// import { verifyPolicyOtp, resendPolicyOtp } from "../services/policyService";
+import { verifyPolicyOtp, resendPolicyOtp, cancelPendingApplication } from "../services/policyService";
 export default function OtpModal({ policy, onClose, onVerified }) {
   const [otp, setOtp] = useState("");
   const [error, setError] = useState("");
@@ -27,6 +27,14 @@ export default function OtpModal({ policy, onClose, onVerified }) {
       setVerifying(false);
     }
   };
+  const handleCancel = async () => {
+  try {
+    await cancelPendingApplication(policy.id);
+  } catch {
+   
+  }
+  onClose();
+};
 
   const handleResend = async () => {
     setError("");
@@ -73,7 +81,7 @@ export default function OtpModal({ policy, onClose, onVerified }) {
           {cooldown > 0 ? `Resend OTP in ${cooldown}s` : "Resend OTP"}
         </button>
 
-        <button onClick={onClose} className="w-full text-xs text-slate-400 mt-2">Cancel</button>
+        <button onClick={handleCancel} className="w-full text-xs text-slate-400 mt-2">Cancel</button>
       </div>
     </div>
   );

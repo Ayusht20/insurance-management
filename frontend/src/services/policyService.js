@@ -16,3 +16,4 @@ export const getMyPolicies = () => axiosInstance.get("/policies/my");
 export const applyForPolicy = (data) => axiosInstance.post("/policies/apply", data);
 export const verifyPolicyOtp = (policyId, otp) => axiosInstance.post(`/policies/${policyId}/verify-otp`, { otp });
 export const resendPolicyOtp = (policyId) => axiosInstance.post(`/policies/${policyId}/resend-otp`);
+export const cancelPendingApplication = (policyId) => axiosInstance.delete(`/policies/${policyId}/cancel-application`);

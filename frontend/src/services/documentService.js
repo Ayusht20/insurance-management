@@ -7,7 +7,20 @@ export const uploadDocument = (customerId, file) => {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
+
 export const getCustomerDocuments = (customerId) =>
   axiosInstance.get(`/documents/customer/${customerId}`);
-export const downloadDocumentUrl = (documentId) =>
-  `${axiosInstance.defaults.baseURL}/documents/${documentId}/download`;
+
+export const downloadDocument = async (documentId, fileName) => {
+  const response = await axiosInstance.get(`/documents/${documentId}/download`, {
+    responseType: "blob",
+  });
+  const url = window.URL.createObjectURL(new Blob([response.data]));
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", fileName || "document");
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(url);
+};
