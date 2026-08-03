@@ -5,7 +5,7 @@ app = FastAPI(title="Insurance Management Platform API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Vite dev server, update for prod
+    allow_origins=["http://localhost:5173","https://insurance-management-zeta.vercel.app"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
