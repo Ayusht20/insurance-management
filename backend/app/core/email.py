@@ -1,28 +1,17 @@
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
+import resend
 from app.config import settings
 
-conf = ConnectionConfig(
-    MAIL_USERNAME=settings.mail_username,
-    MAIL_PASSWORD=settings.mail_password,
-    MAIL_FROM=settings.mail_from,
-    MAIL_PORT=settings.mail_port,
-    MAIL_SERVER=settings.mail_server,
-    MAIL_STARTTLS=True,
-    MAIL_SSL_TLS=False,
-    USE_CREDENTIALS=True,
-)
+resend.api_key = settings.resend_api_key
 
 
 async def send_email(subject: str, recipients: list[str], body: str):
-    message = MessageSchema(
-        subject=subject,
-        recipients=recipients,
-        body=body,
-        subtype=MessageType.html,
-    )
-    fm = FastMail(conf)
     try:
-        await fm.send_message(message)
+        resend.Emails.send({
+            "from": settings.mail_from,
+            "to": recipients,
+            "subject": subject,
+            "html": body,
+        })
     except Exception as e:
         print(f"EMAIL SEND FAILED: {e}")
 
