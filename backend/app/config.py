@@ -6,8 +6,11 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
-    resend_api_key: str
+    mail_username: str
+    mail_password: str
     mail_from: str
+    mail_port: int = 587
+    mail_server: str
 
     class Config:
         env_file = ".env"
