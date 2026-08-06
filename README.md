@@ -74,31 +74,38 @@ Deployment
 Backend — Render
 Frontend — Vercel
 Folder Structure
+## 📁 Project Structure
+
+```text
 insurance-management-platform/
 │
 ├── backend/
 │   ├── app/
-│   │   ├── main.py              # FastAPI app entry point
-│   │   ├── config.py            # environment settings
-│   │   ├── database.py          # DB connection setup
-│   │   ├── models/              # SQLAlchemy models (User, Customer, Policy, Claim, etc.)
-│   │   ├── schemas/             # Pydantic request/response schemas
-│   │   ├── routers/             # API route handlers (auth, policies, claims, etc.)
-│   │   ├── core/                # security, JWT deps, email
-│   │   └── services/            # shared business logic (status sync, etc.)
-│   ├── alembic/                 # database migrations
-│   ├── requirements.txt
-│   └── .env
+│   │   ├── main.py                  # FastAPI application entry point
+│   │   ├── config.py                # Environment and application settings
+│   │   ├── database.py              # Database connection and session management
+│   │   ├── models/                  # SQLAlchemy ORM models (User, Customer, Policy, Claim, etc.)
+│   │   ├── schemas/                 # Pydantic request and response schemas
+│   │   ├── routers/                 # API route handlers (Auth, Policies, Claims, Customers, etc.)
+│   │   ├── core/                    # Core utilities (JWT, Security, Email, Dependencies)
+│   │   └── services/                # Business logic and shared services
+│   │
+│   ├── alembic/                     # Database migration scripts
+│   ├── requirements.txt             # Python dependencies
+│   └── .env                         # Environment variables
 │
 └── frontend/
     ├── src/
-    │   ├── api/                 # axios instance + config
-    │   ├── components/          # reusable UI components
-    │   ├── pages/                # route-level pages
-    │   ├── context/              # auth context
-    │   ├── services/             # API call functions per module
-    │   └── App.jsx                # routing
-    └── package.json
+    │   ├── api/                     # Axios configuration and API instance
+    │   ├── components/              # Reusable UI components
+    │   ├── pages/                   # Route-level pages
+    │   ├── context/                 # React Context (Authentication, Global State)
+    │   ├── services/                # API service functions by module
+    │   └── App.jsx                  # Application routing
+    │
+    └── package.json                 # Frontend dependencies and scripts
+```
+
 Industrial Use
 
 This project models real patterns used in production insurance and fintech systems:
