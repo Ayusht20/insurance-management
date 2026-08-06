@@ -28,18 +28,22 @@ Add your screenshots to a folder named screenshots/ in the project root, then re
 
 Screen	Preview
 Landing Page	![Landing Page](./screenshots/landing.png)
+Landing Page	![Landing Page](./screenshots/landing2.png)
 Login	![Login](./screenshots/login.png)
 Register	![Register](./screenshots/register.png)
 Customer Dashboard	![Customer Dashboard](./screenshots/customer-dashboard.png)
 Admin Dashboard	![Admin Dashboard](./screenshots/admin-dashboard.png)
-Plans Page	![Plans](./screenshots/plans.png)
-Apply for Policy (Form)	![Apply Form](./screenshots/apply-form.png)
-OTP Verification	![OTP Verification](./screenshots/otp-verify.png)
-My Policies	![My Policies](./screenshots/my-policies.png)
-Claims	![Claims](./screenshots/claims.png)
+[Admin Dashboard](./screenshots/admin2.png)
+Plans Page	![Plans](./screenshots/customer-policy.png)
+Apply for Policy (Form)	![Apply Form](./screenshots/apply-insurance.png)
+My Policies	![My Policies](./screenshots/my-policy.png)
+[My Policies](./screenshots/my-policy2.png)
+Claims	![Claims](./screenshots/my-claim.png)
 Claim History	![Claim History](./screenshots/claim-history.png)
-Manage Plans (Admin)	![Manage Plans](./screenshots/manage-plans.png)
-Employee Management	![Employees](./screenshots/employees.png)
+Manage Plans (Admin)	![Manage Plans](./screenshots/admin-create-policy.png)
+Employee Management	![Employees](./screenshots/admin-employees.png)
+Claim managemnet (Admin) ![Employees](./screenshots/admin-claim.png)
+Customer documents managemnet (Admin) ![Employees](./screenshots/admin-documents.png)
 
 Tech Used:
 
