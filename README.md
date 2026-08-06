@@ -1,12 +1,12 @@
-Insura — Insurance Management Platform
+## Insura — Insurance Management Platform
 
 A full-stack insurance management platform built as an internship project. It lets customers browse insurance plans, apply for coverage with OTP-based verification, pay premiums in installments, and file claims — while admins and agents manage the entire business through a dedicated dashboard.
 
-Introduction
+## Introduction
 
 Traditional insurance processes involve a lot of manual paperwork, long approval cycles, and difficulty tracking policies. Insura digitizes this entire flow — from a customer discovering a plan, applying for it with document verification, to filing and tracking a claim later.
 
-The platform supports three roles:
+## The platform supports three roles:
 
 Customer — browse plans, apply for policies, pay premiums, file and track claims
 Agent — manage customers, review and approve/reject claims
@@ -15,15 +15,14 @@ Live Links
 
 
 
-Service	URL
+## Service	URL
 Frontend (Vercel)	https://insurance-management-zeta.vercel.app
 Backend API (Render)	https://insurance-management-1pe9.onrender.com
 API Docs (Swagger)	https://insurance-management-1pe9.onrender.com/docs
 
 Note: the backend is hosted on Render's free tier, so the first request after inactivity may take 30–50 seconds while the server spins up.
 
-Screenshots
-
+## Screenshots
 
 Screen	Preview
 Landing Page	![Landing Page](./screenshots/landing.png)
@@ -44,9 +43,9 @@ Employee Management	![Employees](./screenshots/admin-employees.png)
 Claim managemnet (Admin) ![Employees](./screenshots/admin-claim.png)
 Customer documents managemnet (Admin) ![Employees](./screenshots/admin-documents.png)
 
-Tech Used:
+## Tech Used:
 
-Frontend
+# Frontend
 
 React (Vite)
 Tailwind CSS v4
@@ -55,7 +54,7 @@ Axios
 Chart.js (dashboard analytics)
 Lucide React (icons)
 
-Backend
+# Backend
 
 FastAPI (Python)
 SQLAlchemy (ORM)
@@ -69,10 +68,11 @@ Database
 
 PostgreSQL, hosted on Neon (serverless Postgres)
 
-Deployment
+## Deployment:-
 
 Backend — Render
 Frontend — Vercel
+Backend — Neon
 Folder Structure
 ## 📁 Project Structure
 
@@ -106,7 +106,7 @@ insurance-management-platform/
     └── package.json                 # Frontend dependencies and scripts
 ```
 
-Industrial Use
+## Industrial Use
 
 This project models real patterns used in production insurance and fintech systems:
 
@@ -120,6 +120,6 @@ Email notifications — staff can trigger reminders for expiring policies and ov
 
 These are the same building blocks — auth, RBAC, verification, audit logging, billing cycles — used in real insurance, banking, and healthcare platforms, just simplified for a project scope.
 
-Conclusion
+## Conclusion:-
 
 Insura started as a basic CRUD app and was built up into a role-based, end-to-end platform — covering authentication, document handling, OTP verification, installment billing, claims workflows, and admin analytics. It reflects how a real insurance product's core user journeys — from applying for coverage to filing a claim — actually connect together, rather than treating each feature as an isolated screen.
