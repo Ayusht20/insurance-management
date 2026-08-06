@@ -13,7 +13,7 @@ Agent — manage customers, review and approve/reject claims
 Admin — full control: manage insurance plans, employee accounts, and monitor the business through an analytics dashboard
 Live Links
 
-Replace these with your actual deployed URLs before sharing.
+
 
 Service	URL
 Frontend (Vercel)	https://insurance-management-zeta.vercel.app
@@ -24,7 +24,6 @@ Note: the backend is hosted on Render's free tier, so the first request after in
 
 Screenshots
 
-Add your screenshots to a folder named screenshots/ in the project root, then reference them below. Recommended: PNG format, ~1200px wide.
 
 Screen	Preview
 Landing Page	![Landing Page](./screenshots/landing.png)
